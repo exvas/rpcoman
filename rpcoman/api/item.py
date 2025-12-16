@@ -17,10 +17,12 @@ def get_next_item_code(item_group):
         "Food": {"start": 100001, "end": 199999},
         "Frozen": {"start": 200000, "end": 299999},
         "Non Food": {"start": 300000, "end": 399999},
+        "Asset": {"start": 400000, "end": 499999},
     }
 
+    # Fallback for any other item group not in the defined ranges
     if item_group not in ranges:
-        return None
+        ranges[item_group] = {"start": 500000, "end": 599999}
 
     range_config = ranges[item_group]
 
