@@ -21,6 +21,16 @@ frappe.ui.form.on('Item', {
     },
 
     before_save(frm) {
+        // FIRST: Validate Item Tax Template is filled
+        if (frm.doc.taxes && frm.doc.taxes.length > 0) {
+            for (let i = 0; i < frm.doc.taxes.length; i++) {
+                let row = frm.doc.taxes[i];
+                if (!row.item_tax_template) {
+                    frappe.throw(__('Row {0}: Item Tax Template is mandatory', [i + 1]));
+                }
+            }
+        }
+
         // Auto set Tax Category "VAT" only for new items
         if (frm.is_new() && frm.doc.taxes && frm.doc.taxes.length > 0) {
             frm.doc.taxes.forEach(row => {
@@ -30,7 +40,7 @@ frappe.ui.form.on('Item', {
             });
         }
 
-        // Batch confirmation logic
+        // LAST: Batch confirmation logic
         if (frm.batch_confirmed || frm.doc.has_batch_no) {
             return;
         }
