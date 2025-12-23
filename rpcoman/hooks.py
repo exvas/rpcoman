@@ -5,6 +5,9 @@ app_description = "rpcoman"
 app_email = "sammish.thundiyil@gmail.com"
 app_license = "mit"
 
+# Import overrides to apply monkey patches
+import rpcoman.overrides.number_card  # noqa: F401
+
 # Apps
 # ------------------
 
@@ -180,9 +183,9 @@ doctype_js = {
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "rpcoman.event.get_events"
-# }
+override_whitelisted_methods = {
+	"frappe.desk.doctype.number_card.number_card.get_result": "rpcoman.overrides.number_card.get_result"
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
