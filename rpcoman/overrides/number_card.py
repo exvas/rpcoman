@@ -30,16 +30,7 @@ DatabaseQuery.build_conditions = patched_build_conditions
 
 
 @frappe.whitelist()
-def get_result(
-	doc,
-	filters,
-	fieldname,
-	aggregation="count",
-	company=None,
-	based_on=None,
-	timespan=None,
-	time_interval=None,
-):
+def get_result(doc, filters, to_date=None):
 	"""
 	Override of Frappe's get_result to handle empty filter conditions.
 
@@ -47,17 +38,8 @@ def get_result(
 	which occurs when permission filters or dynamic filters evaluate to empty conditions.
 	"""
 	try:
-		# Call the original function
-		return frappe_get_result(
-			doc=doc,
-			filters=filters,
-			fieldname=fieldname,
-			aggregation=aggregation,
-			company=company,
-			based_on=based_on,
-			timespan=timespan,
-			time_interval=time_interval,
-		)
+		# Call the original function with correct signature
+		return frappe_get_result(doc=doc, filters=filters, to_date=to_date)
 	except frappe.db.ProgrammingError as e:
 		# Check if it's the empty condition error
 		if "and ( )" in str(e) or "near ')'" in str(e):
