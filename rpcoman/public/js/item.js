@@ -1,6 +1,8 @@
 frappe.ui.form.on('Item', {
     refresh(frm) {
         frm.batch_confirmed = false;
+        // Make Item Code read-only
+        frm.set_df_property('item_code', 'read_only', 1);
     },
 
     item_group(frm) {
@@ -51,6 +53,7 @@ frappe.ui.form.on('Item', {
             'Enable Batch for this Item?<br>هل تريد تفعيل الدفعة لهذا الصنف؟',
             () => {
                 frm.set_value('has_batch_no', 1);
+                frm.set_value('has_expiry_date', 1);
                 frm.batch_confirmed = true;
                 frm.save();
             },
