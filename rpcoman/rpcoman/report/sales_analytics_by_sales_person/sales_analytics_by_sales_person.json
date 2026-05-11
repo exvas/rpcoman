@@ -1,0 +1,91 @@
+{
+ "add_total_row": 1,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "is_standard": "Yes",
+ "module": "Rpcoman",
+ "name": "Sales Analytics by Sales Person",
+ "ref_doctype": "Sales Invoice",
+ "report_name": "Sales Analytics by Sales Person",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Sales Manager"
+  },
+  {
+   "role": "Sales User"
+  }
+ ],
+ "filters": [
+  {
+   "fieldname": "tree_type",
+   "label": "Tree Type",
+   "fieldtype": "Select",
+   "options": "Sales Person\nCustomer\nItem\nCustomer Group\nTerritory\nItem Group",
+   "default": "Sales Person",
+   "reqd": 1
+  },
+  {
+   "fieldname": "doc_type",
+   "label": "Based On",
+   "fieldtype": "Select",
+   "options": "Sales Invoice\nSales Order\nDelivery Note",
+   "default": "Sales Invoice",
+   "reqd": 1
+  },
+  {
+   "fieldname": "value_quantity",
+   "label": "Value Or Qty",
+   "fieldtype": "Select",
+   "options": "Value\nQuantity",
+   "default": "Value",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_date",
+   "label": "From Date",
+   "fieldtype": "Date",
+   "default": "2026-01-01",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_date",
+   "label": "To Date",
+   "fieldtype": "Date",
+   "default": "2026-12-31",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "label": "Company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "range",
+   "label": "Range",
+   "fieldtype": "Select",
+   "options": "Weekly\nMonthly\nQuarterly\nYearly",
+   "default": "Monthly",
+   "reqd": 1
+  },
+  {
+   "fieldname": "curves",
+   "label": "Show",
+   "fieldtype": "Select",
+   "options": "All\nnon-zeros\ntotal",
+   "default": "All"
+  },
+  {
+   "fieldname": "show_aggregate_value_from_subsidiary_companies",
+   "label": "Show Aggregate Value from Subsidiary Companies",
+   "fieldtype": "Check",
+   "default": 0
+  }
+ ]
+}
