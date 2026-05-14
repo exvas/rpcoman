@@ -25,7 +25,7 @@
    "fieldname": "tree_type",
    "label": "Tree Type",
    "fieldtype": "Select",
-   "options": "Sales Person\nCustomer\nItem\nCustomer Group\nTerritory\nItem Group",
+   "options": "Sales Person\nSales Person - Item\nCustomer\nItem\nCustomer Group\nTerritory\nItem Group",
    "default": "Sales Person",
    "reqd": 1
   },

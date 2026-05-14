@@ -57,6 +57,48 @@ class Analytics:
 	def get_columns(self):
 		self.columns = []
 
+		if self.filters.tree_type == "Sales Person - Item":
+			self.columns += [
+				{
+					"label": _("Sales Person"),
+					"options": "Sales Person",
+					"fieldname": "entity",
+					"fieldtype": "Link",
+					"width": 180,
+				},
+				{
+					"label": _("Item Code"),
+					"options": "Item",
+					"fieldname": "item_code",
+					"fieldtype": "Link",
+					"width": 140,
+				},
+				{
+					"label": _("Item Name"),
+					"fieldname": "item_name",
+					"fieldtype": "Data",
+					"width": 160,
+				},
+				{
+					"label": _("UOM"),
+					"fieldname": "stock_uom",
+					"fieldtype": "Link",
+					"options": "UOM",
+					"width": 80,
+				},
+			]
+			for end_date in self.periodic_daterange:
+				period = self.get_period(end_date)
+				self.columns.append(
+					{"label": _(period) + " Qty", "fieldname": scrub(period) + "_qty", "fieldtype": "Float", "width": 110}
+				)
+				self.columns.append(
+					{"label": _(period) + " Val", "fieldname": scrub(period) + "_val", "fieldtype": "Currency", "width": 120}
+				)
+			self.columns.append({"label": _("Total Qty"), "fieldname": "total_qty", "fieldtype": "Float", "width": 110})
+			self.columns.append({"label": _("Total Value"), "fieldname": "total_value", "fieldtype": "Currency", "width": 120})
+			return
+
 		if self.filters.tree_type == "Sales Person":
 			self.columns.append(
 				{
@@ -119,6 +161,11 @@ class Analytics:
 		self.columns.append({"label": _("Total"), "fieldname": "total", "fieldtype": "Float", "width": 120})
 
 	def get_data(self):
+		if self.filters.tree_type == "Sales Person - Item":
+			self.get_sales_transactions_based_on_sales_person_and_item()
+			self.get_rows_sales_person_item()
+			return
+
 		if self.filters.tree_type == "Sales Person":
 			self.get_sales_transactions_based_on_sales_person()
 			self.get_rows()
@@ -176,6 +223,84 @@ class Analytics:
 		self.entity_names = {}
 		for d in self.entries:
 			self.entity_names.setdefault(d.entity, d.entity_name)
+
+	def get_sales_transactions_based_on_sales_person_and_item(self):
+		doc_type = self.filters.doc_type
+
+		self.entries = frappe.db.sql(
+			f"""
+			SELECT
+				st.sales_person,
+				si_item.item_code,
+				si_item.item_name,
+				si_item.stock_uom,
+				si_item.stock_qty AS qty,
+				si_item.base_net_amount AS value_field,
+				si.{self.date_field}
+			FROM
+				`tab{doc_type}` si
+				INNER JOIN `tabSales Team` st ON st.parent = si.name AND st.parenttype = %(doc_type)s
+				INNER JOIN `tab{doc_type} Item` si_item ON si_item.parent = si.name
+			WHERE
+				si.docstatus = 1
+				AND si.company IN %(company)s
+				AND si.{self.date_field} BETWEEN %(from_date)s AND %(to_date)s
+				AND IFNULL(st.sales_person, '') != ''
+			""",
+			{
+				"doc_type": doc_type,
+				"company": tuple(self.filters.company),
+				"from_date": self.filters.from_date,
+				"to_date": self.filters.to_date,
+			},
+			as_dict=True,
+		)
+
+	def get_rows_sales_person_item(self):
+		self.data = []
+		entity_periodic_data = frappe._dict()
+
+		for d in self.entries:
+			key = (d.sales_person, d.item_code)
+			period = self.get_period(d.get(self.date_field))
+
+			if key not in entity_periodic_data:
+				entity_periodic_data[key] = frappe._dict(
+					{
+						"sales_person": d.sales_person,
+						"item_code": d.item_code,
+						"item_name": d.item_name,
+						"stock_uom": d.stock_uom,
+					}
+				)
+
+			entity_periodic_data[key].setdefault(period + "__qty", 0.0)
+			entity_periodic_data[key].setdefault(period + "__val", 0.0)
+			entity_periodic_data[key][period + "__qty"] += flt(d.qty)
+			entity_periodic_data[key][period + "__val"] += flt(d.value_field)
+
+		for key, period_data in entity_periodic_data.items():
+			row = {
+				"entity": period_data.sales_person,
+				"item_code": period_data.item_code,
+				"item_name": period_data.item_name,
+				"stock_uom": period_data.stock_uom,
+			}
+			total_qty = 0
+			total_value = 0
+
+			for end_date in self.periodic_daterange:
+				period = self.get_period(end_date)
+				qty = flt(period_data.get(period + "__qty", 0.0))
+				val = flt(period_data.get(period + "__val", 0.0))
+				row[scrub(period) + "_qty"] = qty
+				row[scrub(period) + "_val"] = val
+				total_qty += qty
+				total_value += val
+
+			row["total_qty"] = total_qty
+			row["total_value"] = total_value
+			self.data.append(row)
 
 	def get_sales_transactions_based_on_customers_or_suppliers(self):
 		if self.filters["value_quantity"] == "Value":
@@ -414,6 +539,22 @@ class Analytics:
 				self.depth_map.setdefault(d.name, 0)
 
 	def get_chart_data(self):
+		if self.filters.tree_type == "Sales Person - Item":
+			period_labels = [self.get_period(d) for d in self.periodic_daterange]
+			datasets = []
+			for row in self.data:
+				label = f"{row['entity']} - {row['item_code']}"
+				values = [flt(row.get(scrub(p) + "_val", 0)) for p in period_labels]
+				if self.filters.curves == "non-zeros" and not sum(values):
+					continue
+				datasets.append({"name": label, "values": values})
+			self.chart = {
+				"data": {"labels": period_labels, "datasets": datasets},
+				"type": "line",
+				"fieldtype": "Currency",
+			}
+			return
+
 		length = len(self.columns)
 
 		if self.filters.tree_type == "Sales Person":
