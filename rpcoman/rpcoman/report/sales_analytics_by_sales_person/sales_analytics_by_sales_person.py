@@ -302,7 +302,7 @@ class Analytics:
 			entity_periodic_data[key][period + "__qty"] += flt(d.qty)
 			entity_periodic_data[key][period + "__val"] += flt(d.value_field)
 
-		for key, period_data in entity_periodic_data.items():
+		for key, period_data in entity_periodic_data.items():  # noqa: B007
 			row = {
 				"entity": period_data.sales_person,
 				"item_code": period_data.item_code,
