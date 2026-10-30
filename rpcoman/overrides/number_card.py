@@ -18,10 +18,10 @@ def patched_build_conditions(self):
 
 	# Filter out empty conditions from self.conditions
 	if self.conditions:
-		self.conditions = [c for c in self.conditions if c and c.strip() not in ('()', '( )')]
+		self.conditions = [c for c in self.conditions if c and c.strip() not in ("()", "( )")]
 
 	# Filter out empty grouped_or_conditions
-	if hasattr(self, 'grouped_or_conditions') and self.grouped_or_conditions:
+	if hasattr(self, "grouped_or_conditions") and self.grouped_or_conditions:
 		self.grouped_or_conditions = [c for c in self.grouped_or_conditions if c and c.strip()]
 
 
@@ -45,7 +45,7 @@ def get_result(doc, filters, to_date=None):
 		if "and ( )" in str(e) or "near ')'" in str(e):
 			frappe.log_error(
 				title="Number Card Empty Filter Condition",
-				message=f"Number Card '{doc}' has empty filter conditions. Error: {str(e)}\nFilters: {filters}"
+				message=f"Number Card '{doc}' has empty filter conditions. Error: {str(e)}\nFilters: {filters}",
 			)
 			# Return a safe default value
 			return 0
