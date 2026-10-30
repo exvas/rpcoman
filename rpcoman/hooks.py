@@ -6,7 +6,7 @@ app_email = "sammish.thundiyil@gmail.com"
 app_license = "mit"
 
 # Import overrides to apply monkey patches
-import rpcoman.overrides.number_card  # noqa: F401
+import rpcoman.overrides.number_card
 
 # Apps
 # ------------------
@@ -47,10 +47,10 @@ import rpcoman.overrides.number_card  # noqa: F401
 
 # include js in doctype views
 doctype_js = {
-    "Item": "public/js/item.js",
-    "Customer": "public/js/customer.js",
-    "Supplier": "public/js/supplier.js",
-    "Sales Invoice": "public/js/sales_invoice.js"
+	"Item": "public/js/item.js",
+	"Customer": "public/js/customer.js",
+	"Supplier": "public/js/supplier.js",
+	"Sales Invoice": "public/js/sales_invoice.js",
 }
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
@@ -250,4 +250,3 @@ override_whitelisted_methods = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-

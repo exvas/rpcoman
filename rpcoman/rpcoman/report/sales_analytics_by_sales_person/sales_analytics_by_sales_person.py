@@ -1,10 +1,9 @@
 import frappe
+from erpnext.accounts.utils import get_fiscal_year
 from frappe import _, scrub
 from frappe.query_builder import DocType
 from frappe.query_builder.functions import IfNull
 from frappe.utils import add_days, add_to_date, flt, getdate
-
-from erpnext.accounts.utils import get_fiscal_year
 
 
 def execute(filters=None):
@@ -20,8 +19,18 @@ class Analytics:
 			else "posting_date"
 		)
 		self.months = [
-			"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-			"Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+			"Jan",
+			"Feb",
+			"Mar",
+			"Apr",
+			"May",
+			"Jun",
+			"Jul",
+			"Aug",
+			"Sep",
+			"Oct",
+			"Nov",
+			"Dec",
 		]
 		self.get_period_date_ranges()
 
@@ -90,13 +99,27 @@ class Analytics:
 			for end_date in self.periodic_daterange:
 				period = self.get_period(end_date)
 				self.columns.append(
-					{"label": _(period) + " Qty", "fieldname": scrub(period) + "_qty", "fieldtype": "Float", "width": 110}
+					{
+						"label": _(period) + " Qty",
+						"fieldname": scrub(period) + "_qty",
+						"fieldtype": "Float",
+						"width": 110,
+					}
 				)
 				self.columns.append(
-					{"label": _(period) + " Val", "fieldname": scrub(period) + "_val", "fieldtype": "Currency", "width": 120}
+					{
+						"label": _(period) + " Val",
+						"fieldname": scrub(period) + "_val",
+						"fieldtype": "Currency",
+						"width": 120,
+					}
 				)
-			self.columns.append({"label": _("Total Qty"), "fieldname": "total_qty", "fieldtype": "Float", "width": 110})
-			self.columns.append({"label": _("Total Value"), "fieldname": "total_value", "fieldtype": "Currency", "width": 120})
+			self.columns.append(
+				{"label": _("Total Qty"), "fieldname": "total_qty", "fieldtype": "Float", "width": 110}
+			)
+			self.columns.append(
+				{"label": _("Total Value"), "fieldname": "total_value", "fieldtype": "Currency", "width": 120}
+			)
 			return
 
 		if self.filters.tree_type == "Sales Person":
@@ -279,7 +302,7 @@ class Analytics:
 			entity_periodic_data[key][period + "__qty"] += flt(d.qty)
 			entity_periodic_data[key][period + "__val"] += flt(d.value_field)
 
-		for key, period_data in entity_periodic_data.items():
+		for key, period_data in entity_periodic_data.items():  # noqa: B007
 			row = {
 				"entity": period_data.sales_person,
 				"item_code": period_data.item_code,
@@ -558,13 +581,13 @@ class Analytics:
 		length = len(self.columns)
 
 		if self.filters.tree_type == "Sales Person":
-			labels = [d.get("label") for d in self.columns[1: length - 1]]
+			labels = [d.get("label") for d in self.columns[1 : length - 1]]
 		elif self.filters.tree_type in ["Customer", "Supplier"]:
-			labels = [d.get("label") for d in self.columns[2: length - 1]]
+			labels = [d.get("label") for d in self.columns[2 : length - 1]]
 		elif self.filters.tree_type == "Item":
-			labels = [d.get("label") for d in self.columns[3: length - 1]]
+			labels = [d.get("label") for d in self.columns[3 : length - 1]]
 		else:
-			labels = [d.get("label") for d in self.columns[1: length - 1]]
+			labels = [d.get("label") for d in self.columns[1 : length - 1]]
 
 		datasets = []
 		for curve in self.data:
