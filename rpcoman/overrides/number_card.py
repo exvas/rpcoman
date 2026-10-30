@@ -2,7 +2,6 @@ import frappe
 from frappe.desk.doctype.number_card.number_card import get_result as frappe_get_result
 from frappe.model.db_query import DatabaseQuery
 
-
 # Monkey patch DatabaseQuery to handle empty filter groups
 _original_build_conditions = DatabaseQuery.build_conditions
 
@@ -45,7 +44,7 @@ def get_result(doc, filters, to_date=None):
 		if "and ( )" in str(e) or "near ')'" in str(e):
 			frappe.log_error(
 				title="Number Card Empty Filter Condition",
-				message=f"Number Card '{doc}' has empty filter conditions. Error: {str(e)}\nFilters: {filters}",
+				message=f"Number Card '{doc}' has empty filter conditions. Error: {e!s}\nFilters: {filters}",
 			)
 			# Return a safe default value
 			return 0

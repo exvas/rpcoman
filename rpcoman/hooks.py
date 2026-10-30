@@ -6,7 +6,7 @@ app_email = "sammish.thundiyil@gmail.com"
 app_license = "mit"
 
 # Import overrides to apply monkey patches
-import rpcoman.overrides.number_card  # noqa: F401
+import rpcoman.overrides.number_card
 
 # Apps
 # ------------------
